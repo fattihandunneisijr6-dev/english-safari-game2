@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Safari Adventure - Fun Learning Game for Kids</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Quicksand -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                        display: ['Fredoka', 'cursive'],
+                    },
+                    colors: {
+                        safari: {
+                            green: '#2ECC71',
+                            darkGreen: '#27AE60',
+                            yellow: '#F1C40F',
+                            orange: '#E67E22',
+                            blue: '#3498DB',
+                            purple: '#9B59B6',
+                            red: '#E74C3C',
+                            bg: '#FEF9E7'
+                        }
+                    },
+                    boxShadow: {
+                        '3d-green': '0 6px 0 0 #27AE60',
+                        '3d-yellow': '0 6px 0 0 #D4AC0D',
+                        '3d-orange': '0 6px 0 0 #D35400',
+                        '3d-blue': '0 6px 0 0 #2980B9',
+                        '3d-purple': '0 6px 0 0 #8E44AD',
+                        '3d-red': '0 6px 0 0 #C0392B',
+                        '3d-slate': '0 6px 0 0 #94A3B8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FEF9E7;
+            background-image: radial-gradient(#2ECC71 0.8px, transparent 0.8px), radial-gradient(#2ECC71 0.8px, #FEF9E7 0.8px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .btn-press {
+            transition: all 0.1s ease;
+        }
+        .btn-press:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 transparent !important;
+        }
+
+        /* 3D Card Flipping for Memory Match */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .preserve-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease-in-out;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-gentle {
+            animation: bounce-gentle 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between font-sans text-slate-800">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white/95 backdrop-blur-md border-b-4 border-amber-400 sticky top-0 z-40 px-4 py-3 shadow-sm">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <!-- App Logo & Home Button -->
+            <button id="navHomeBtn" class="flex items-center gap-2 md:gap-3 text-left focus:outline-none group">
+                <div class="w-11 h-11 bg-amber-400 rounded-2xl border-2 border-amber-600 flex items-center justify-center text-2xl shadow-3d-yellow group-hover:scale-105 transition">
+                    🦁
+                </div>
+                <div>
+                    <h1 class="font-display font-extrabold text-xl md:text-2xl text-emerald-600 leading-tight">English Safari</h1>
+                    <span class="text-[10px] md:text-xs font-bold text-amber-600 uppercase tracking-widest block -mt-1">Petualangan Belajar SD</span>
+                </div>
+            </button>
+
+            <!-- Stats Bar (Stars & Badges) -->
+            <div class="flex items-center gap-2 md:gap-4 bg-amber-100/80 px-3 py-1.5 rounded-2xl border-2 border-amber-300">
+                <div class="flex items-center gap-1.5" title="Total Bintang Kamu">
+                    <span class="text-xl md:text-2xl">⭐</span>
+                    <span id="statStars" class="font-display font-bold text-base md:text-lg text-amber-700">0</span>
+                </div>
+                <div class="h-5 w-0.5 bg-amber-300"></div>
+                <button id="openBadgesBtn" class="flex items-center gap-1 bg-white hover:bg-amber-50 text-amber-800 font-display font-bold text-xs md:text-sm px-2.5 py-1 rounded-xl border border-amber-300 shadow-sm transition">
+                    <span class="text-lg">🏆</span>
+                    <span class="hidden sm:inline">Lencana</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- SCREEN 1: CATEGORIES & MODE SELECTION (MAIN HOME) -->
+        <section id="screenHome" class="space-y-6">
+            <!-- Hero Welcome Card -->
+            <div class="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl p-6 text-white shadow-xl border-4 border-emerald-400 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="z-10 text-center md:text-left space-y-2">
+                    <span class="bg-amber-400 text-amber-950 font-display font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider inline-block shadow-sm">
+                        👋 Hi Little Adventurer!
+                    </span>
+                    <h2 class="font-display text-2xl md:text-4xl font-extrabold text-amber-100 drop-shadow">
+                        Ready to Learn English?
+                    </h2>
+                    <p class="text-emerald-100 text-sm md:text-base max-w-lg">
+                        Pilih topik favoritmu di bawah ini dan mainkan gamenya! Kumpulkan semua ⭐ dan buka lencana pahlawan!
+                    </p>
+                </div>
+                <div class="text-7xl md:text-8xl z-10 animate-bounce-gentle shrink-0">
+                    🦒
+                </div>
+                <!-- Decorative Blur background circles -->
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-amber-400/20 rounded-full blur-2xl"></div>
+            </div>
+
+            <!-- Categories Grid -->
+            <div class="space-y-4">
+                <h3 class="font-display text-xl md:text-2xl font-bold text-emerald-800 flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-amber-500"></i> Pilih Topik Pembelajaran:
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Category 1: Animals Safari -->
+                    <div class="bg-white rounded-3xl p-5 border-4 border-emerald-400 shadow-xl flex flex-col justify-between space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-4xl border-2 border-emerald-300 shrink-0">
+                                🦁
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-xl text-emerald-800">Animals Safari</h4>
+                                <p class="text-xs text-slate-500 font-semibold">Hewan, Warna & Kata Sifat</p>
+                            </div>
+                        </div>
+                        <p class="text-xs md:text-sm text-slate-600">Pelajari nama-nama hewan lucu dan deskripsinya dalam bahasa Inggris!</p>
+                        
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                            <button onclick="startGameMode('animals', 'quiz')" class="btn-press bg-emerald-500 hover:bg-emerald-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-green font-bold text-center">
+                                🎮 Quiz
+                            </button>
+                            <button onclick="startGameMode('animals', 'spelling')" class="btn-press bg-teal-500 hover:bg-teal-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-green font-bold text-center">
+                                🔤 Eja Kata
+                            </button>
+                            <button onclick="startGameMode('animals', 'memory')" class="btn-press bg-cyan-500 hover:bg-cyan-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-blue font-bold text-center">
+                                🃏 Memori
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: My School -->
+                    <div class="bg-white rounded-3xl p-5 border-4 border-sky-400 shadow-xl flex flex-col justify-between space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-sky-100 flex items-center justify-center text-4xl border-2 border-sky-300 shrink-0">
+                                🎒
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-xl text-sky-800">My School & Class</h4>
+                                <p class="text-xs text-slate-500 font-semibold">Benda Sekolah & Alat Tulis</p>
+                            </div>
+                        </div>
+                        <p class="text-xs md:text-sm text-slate-600">Mengenal benda-benda yang ada di sekolah dan peralatan belajar sehari-hari!</p>
+                        
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                            <button onclick="startGameMode('school', 'quiz')" class="btn-press bg-sky-500 hover:bg-sky-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-blue font-bold text-center">
+                                🎮 Quiz
+                            </button>
+                            <button onclick="startGameMode('school', 'spelling')" class="btn-press bg-blue-500 hover:bg-blue-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-blue font-bold text-center">
+                                🔤 Eja Kata
+                            </button>
+                            <button onclick="startGameMode('school', 'memory')" class="btn-press bg-indigo-500 hover:bg-indigo-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-purple font-bold text-center">
+                                🃏 Memori
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Yummy Treats -->
+                    <div class="bg-white rounded-3xl p-5 border-4 border-rose-400 shadow-xl flex flex-col justify-between space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-rose-100 flex items-center justify-center text-4xl border-2 border-rose-300 shrink-0">
+                                🍕
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-xl text-rose-800">Food & Yummy Treats</h4>
+                                <p class="text-xs text-slate-500 font-semibold">Makanan & Minuman Lezat</p>
+                            </div>
+                        </div>
+                        <p class="text-xs md:text-sm text-slate-600">Pelajari nama makanan, buah-buahan, dan minuman dalam bahasa Inggris!</p>
+                        
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                            <button onclick="startGameMode('food', 'quiz')" class="btn-press bg-rose-500 hover:bg-rose-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-red font-bold text-center">
+                                🎮 Quiz
+                            </button>
+                            <button onclick="startGameMode('food', 'spelling')" class="btn-press bg-pink-500 hover:bg-pink-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-red font-bold text-center">
+                                🔤 Eja Kata
+                            </button>
+                            <button onclick="startGameMode('food', 'memory')" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-display text-xs md:text-sm py-2 px-2 rounded-xl shadow-3d-orange font-bold text-center">
+                                🃏 Memori
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category 4: Fun Grammar -->
+                    <div class="bg-white rounded-3xl p-5 border-4 border-amber-400 shadow-xl flex flex-col justify-between space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center text-4xl border-2 border-amber-300 shrink-0">
+                                ⚡
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-xl text-amber-800">Fun Grammar</h4>
+                                <p class="text-xs text-slate-500 font-semibold">A/An, Is/Are & Action Verbs</p>
+                            </div>
+                        </div>
+                        <p class="text-xs md:text-sm text-slate-600">Latih penggunaan tata bahasa Inggris sederhana (*Grammar*) secara seru!</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                            <button onclick="startGameMode('grammar', 'quiz')" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-display text-xs md:text-sm py-2.5 px-2 rounded-xl shadow-3d-yellow font-bold text-center">
+                                🎮 Quiz Grammar
+                            </button>
+                            <button onclick="startGameMode('grammar', 'memory')" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-display text-xs md:text-sm py-2.5 px-2 rounded-xl shadow-3d-orange font-bold text-center">
+                                🃏 Memori Grammar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: GAME PLAYGROUND (DYNAMIC CONTAINER) -->
+        <section id="screenGameplay" class="hidden space-y-6">
+            
+            <!-- Game Control Subheader -->
+            <div class="bg-white rounded-2xl p-4 border-2 border-slate-200 shadow-md flex justify-between items-center">
+                <button onclick="exitToHome()" class="btn-press bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Menu
+                </button>
+                <div class="text-center">
+                    <span id="gameTitleBadge" class="font-display font-bold text-emerald-700 text-sm md:text-base">Animals Safari</span>
+                    <span id="gameModeBadge" class="bg-emerald-100 text-emerald-800 text-[10px] md:text-xs px-2.5 py-0.5 rounded-full ml-1 font-extrabold uppercase">QUIZ</span>
+                </div>
+                <div class="font-display font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl text-xs md:text-sm">
+                    Soal <span id="currentQuestionNum">1</span>/<span id="totalQuestionsNum">5</span>
+                </div>
+            </div>
+
+            <!-- MODE A: QUIZ QUEST -->
+            <div id="modeQuiz" class="hidden bg-white rounded-3xl p-6 border-4 border-emerald-400 shadow-xl space-y-6">
+                <div class="bg-emerald-50 rounded-2xl p-6 border-2 border-emerald-200 text-center relative flex flex-col items-center">
+                    <!-- Text To Speech Trigger -->
+                    <button id="quizSpeakerBtn" class="absolute top-4 right-4 bg-amber-400 hover:bg-amber-500 text-amber-950 w-11 h-11 rounded-2xl flex items-center justify-center text-xl shadow-3d-yellow btn-press" title="Dengarkan Suara">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    
+                    <div id="quizVisualEmoji" class="text-7xl md:text-8xl my-3">
+                        🦁
+                    </div>
+                    
+                    <p class="text-[11px] text-slate-400 font-extrabold uppercase tracking-widest mb-1">Pertanyaan:</p>
+                    <h3 id="quizQuestionText" class="font-display text-xl md:text-2xl font-bold text-slate-800">What animal is this?</h3>
+                </div>
+
+                <!-- Multiple Choice Grid -->
+                <div id="quizOptionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Options -->
+                </div>
+            </div>
+
+            <!-- MODE B: SPELLING MASTER -->
+            <div id="modeSpelling" class="hidden bg-white rounded-3xl p-6 border-4 border-teal-400 shadow-xl space-y-6">
+                <div class="bg-teal-50 rounded-2xl p-6 border-2 border-teal-200 text-center relative flex flex-col items-center">
+                    <button id="spellingSpeakerBtn" class="absolute top-4 right-4 bg-amber-400 hover:bg-amber-500 text-amber-950 w-11 h-11 rounded-2xl flex items-center justify-center text-xl shadow-3d-yellow btn-press" title="Dengarkan Suara">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+
+                    <div id="spellingVisualEmoji" class="text-7xl md:text-8xl my-3">
+                        🐱
+                    </div>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Arti (Indonesia): <span id="spellingIndoHint" class="text-teal-700 font-bold">Kucing</span></p>
+                    <p class="font-display text-base md:text-lg font-bold text-slate-700 mt-1">Eja kata dalam Bahasa Inggris:</p>
+                </div>
+
+                <!-- Answer Slots -->
+                <div id="spellingTargetSlots" class="flex flex-wrap justify-center gap-2 py-2">
+                    <!-- Dynamic Slots -->
+                </div>
+
+                <!-- Scrambled Letter Tiles -->
+                <div class="text-center space-y-2">
+                    <p class="text-[11px] text-slate-400 font-bold uppercase">Klik Huruf Untuk Menyusun:</p>
+                    <div id="spellingSourceTiles" class="flex flex-wrap justify-center gap-2">
+                        <!-- Dynamic Scrambled Tiles -->
+                    </div>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="flex justify-center pt-2">
+                    <button onclick="resetSpellingCurrentWord()" class="btn-press bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-3d-slate">
+                        <i class="fa-solid fa-rotate-right"></i> Ulang Ejaan
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE C: MEMORY MATCH -->
+            <div id="modeMemory" class="hidden bg-white rounded-3xl p-6 border-4 border-cyan-400 shadow-xl space-y-6">
+                <div class="text-center">
+                    <h3 class="font-display text-xl font-bold text-cyan-800">Cari Pasangan Kartu Yang Cocok! 🃏</h3>
+                    <p class="text-xs text-slate-500">Klik kartu untuk membuka dan mencocokkan kata atau gambar bahasa Inggris.</p>
+                </div>
+
+                <!-- Memory Grid -->
+                <div id="memoryGrid" class="grid grid-cols-3 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                    <!-- Dynamic Memory Cards -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SCREEN 3: RESULT & REWARD SCREEN -->
+        <section id="screenResult" class="hidden bg-white rounded-3xl p-8 border-4 border-amber-400 shadow-2xl text-center space-y-6 max-w-lg mx-auto">
+            <div class="inline-block p-4 bg-amber-100 rounded-full border-2 border-amber-300 text-5xl animate-bounce-gentle">
+                🎉
+            </div>
+            
+            <div>
+                <h2 class="font-display text-3xl font-bold text-amber-800">Great Job! Selesai!</h2>
+                <p class="text-slate-500 text-sm mt-1">Kamu telah menyelesaikan modul tantangan ini!</p>
+            </div>
+
+            <!-- Star Rating Display -->
+            <div id="resultStarsRow" class="flex justify-center gap-3 text-5xl">
+                <span>⭐</span>
+                <span>⭐</span>
+                <span>⭐</span>
+            </div>
+
+            <!-- Final Score Summary -->
+            <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200 max-w-xs mx-auto space-y-1">
+                <p class="text-xs text-amber-700 font-bold uppercase">Skor Permainan</p>
+                <p id="finalScoreNumber" class="font-display font-extrabold text-4xl text-amber-600">100</p>
+            </div>
+
+            <!-- Newly Unlocked Badge Banner -->
+            <div id="newBadgeUnlockedCard" class="hidden bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3 flex items-center gap-3 text-left">
+                <div id="newBadgeIcon" class="text-4xl">🏅</div>
+                <div>
+                    <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block">Lencana Baru Terbuka!</span>
+                    <h4 id="newBadgeName" class="font-display font-bold text-emerald-800 text-sm">Safari Explorer</h4>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+                <button onclick="exitToHome()" class="btn-press bg-slate-200 hover:bg-slate-300 text-slate-700 font-display font-bold py-3 px-6 rounded-2xl shadow-3d-slate">
+                    🏠 Menu Utama
+                </button>
+                <button onclick="replayCurrentMode()" class="btn-press bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold py-3 px-6 rounded-2xl shadow-3d-green">
+                    🔄 Main Lagi
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- REWARD BADGES MODAL -->
+    <div id="badgesModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl border-4 border-amber-400 p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-display text-xl font-bold text-amber-800 flex items-center gap-2">
+                    🏆 Koleksi Lencana Kamu
+                </h3>
+                <button onclick="closeBadgesModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div id="badgesListGrid" class="grid grid-cols-1 gap-3">
+                <!-- Badges populated dynamically -->
+            </div>
+
+            <button onclick="closeBadgesModal()" class="btn-press w-full bg-amber-500 hover:bg-amber-600 text-white font-display font-bold py-2.5 rounded-xl shadow-3d-yellow">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- FEEDBACK TOAST -->
+    <div id="feedbackToast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden transition-all duration-300">
+        <div id="feedbackToastCard" class="bg-emerald-500 text-white px-6 py-3 rounded-full font-display font-bold shadow-2xl border-2 border-white flex items-center gap-3 text-sm md:text-base">
+            <span id="feedbackToastIcon">✅</span>
+            <span id="feedbackToastMessage">Jawaban Benar!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 border-t border-amber-200 py-3 text-center text-xs text-slate-500 font-semibold mt-auto">
+        English Safari Adventure &copy; Game Edukasi Pembelajaran Bahasa Inggris SD
+    </footer>
+
+    <!-- JAVASCRIPT GAME ENGINE -->
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* 1. AUDIO SYNTHESIZER (Web Audio API & Speech Synthesis)                    */
+        /* -------------------------------------------------------------------------- */
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Play procedural sound effects
+        function playSfx(type) {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(240, now);
+                    osc.frequency.setValueAtTime(160, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const subOsc = ctx.createOscillator();
+                        const subGain = ctx.createGain();
+                        subOsc.connect(subGain);
+                        subGain.connect(ctx.destination);
+                        subOsc.frequency.value = freq;
+                        subGain.gain.setValueAtTime(0.2, now + idx * 0.12);
+                        subGain.gain.linearRampToValueAtTime(0.01, now + idx * 0.12 + 0.25);
+                        subOsc.start(now + idx * 0.12);
+                        subOsc.stop(now + idx * 0.12 + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio FX error or disabled:", e);
+            }
+        }
+
+        // Native SpeechSynthesis TTS for English Pronunciation
+        function playEnglishTTS(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop ongoing speech
+                const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText.trim());
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85; // Natural child-friendly speed
+                utterance.pitch = 1.1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 2. GAME DATA BANK                                                          */
+        /* -------------------------------------------------------------------------- */
+        const GAME_DATA = {
+            animals: {
+                title: 'Animals Safari',
+                quiz: [
+                    { visual: '🦁', question: 'What animal is this?', answer: 'Lion', options: ['Lion', 'Elephant', 'Monkey', 'Tiger'] },
+                    { visual: '🐘', question: 'An elephant is very ...', answer: 'Big', options: ['Small', 'Big', 'Tiny', 'Pink'] },
+                    { visual: '🐸', question: 'What color is the frog?', answer: 'Green', options: ['Red', 'Yellow', 'Green', 'Blue'] },
+                    { visual: '🐵', question: 'Monkeys love to eat ...', answer: 'Banana', options: ['Fish', 'Banana', 'Meat', 'Ice Cream'] },
+                    { visual: '🦒', question: 'A giraffe has a ... neck.', answer: 'Long', options: ['Short', 'Long', 'Small', 'Round'] }
+                ],
+                spelling: [
+                    { word: 'LION', visual: '🦁', hint: 'Singa' },
+                    { word: 'TIGER', visual: '🐯', hint: 'Harimau' },
+                    { word: 'RABBIT', visual: '🐰', hint: 'Kelinci' },
+                    { word: 'MONKEY', visual: '🐵', hint: 'Monyet' },
+                    { word: 'PANDA', visual: '🐼', hint: 'Panda' }
+                ],
+                memory: [
+                    { word: 'Dog 🐶', id: 1 }, { word: 'Dog 🐶', id: 1 },
+                    { word: 'Cat 🐱', id: 2 }, { word: 'Cat 🐱', id: 2 },
+                    { word: 'Bird 🐦', id: 3 }, { word: 'Bird 🐦', id: 3 },
+                    { word: 'Duck 🦆', id: 4 }, { word: 'Duck 🦆', id: 4 }
+                ]
+            },
+            school: {
+                title: 'My School & Class',
+                quiz: [
+                    { visual: '📚', question: 'We read this in class. What is it?', answer: 'Book', options: ['Pencil', 'Book', 'Bag', 'Ruler'] },
+                    { visual: '✏️', question: 'We write with a ...', answer: 'Pencil', options: ['Eraser', 'Pencil', 'Chair', 'Table'] },
+                    { visual: '🎒', question: 'I carry my books in my ...', answer: 'School Bag', options: ['Hat', 'Shoes', 'School Bag', 'Box'] },
+                    { visual: '📐', question: 'What tool is used for drawing lines?', answer: 'Ruler', options: ['Ruler', 'Pen', 'Scissors', 'Clock'] },
+                    { visual: '🏫', question: 'Where do students study?', answer: 'School', options: ['Park', 'School', 'Beach', 'Market'] }
+                ],
+                spelling: [
+                    { word: 'BOOK', visual: '📚', hint: 'Buku' },
+                    { word: 'PENCIL', visual: '✏️', hint: 'Pensil' },
+                    { word: 'RULER', visual: '📐', hint: 'Penggaris' },
+                    { word: 'CHAIR', visual: '🪑', hint: 'Kursi' },
+                    { word: 'DESK', visual: '🖥️', hint: 'Meja Belajar' }
+                ],
+                memory: [
+                    { word: 'Pencil ✏️', id: 1 }, { word: 'Pencil ✏️', id: 1 },
+                    { word: 'Book 📚', id: 2 }, { word: 'Book 📚', id: 2 },
+                    { word: 'Eraser 🧼', id: 3 }, { word: 'Eraser 🧼', id: 3 },
+                    { word: 'Ruler 📐', id: 4 }, { word: 'Ruler 📐', id: 4 }
+                ]
+            },
+            food: {
+                title: 'Food & Yummy Treats',
+                quiz: [
+                    { visual: '🍕', question: 'What food is this?', answer: 'Pizza', options: ['Pizza', 'Burger', 'Milk', 'Apple'] },
+                    { visual: '🥛', question: 'Drink ... every morning for health!', answer: 'Milk', options: ['Soda', 'Milk', 'Soup', 'Pizza'] },
+                    { visual: '🍌', question: 'A ripe banana is ...', answer: 'Yellow', options: ['Red', 'Yellow', 'Purple', 'Blue'] },
+                    { visual: '🍦', question: 'Ice cream tastes ...', answer: 'Sweet & Cold', options: ['Salty', 'Sweet & Cold', 'Hot', 'Sour'] },
+                    { visual: '🍔', question: 'What delicious food is this?', answer: 'Burger', options: ['Sandwich', 'Burger', 'Rice', 'Noodles'] }
+                ],
+                spelling: [
+                    { word: 'MILK', visual: '🥛', hint: 'Susu' },
+                    { word: 'PIZZA', visual: '🍕', hint: 'Pisa' },
+                    { word: 'APPLE', visual: '🍎', hint: 'Apel' },
+                    { word: 'JUICE', visual: '🧃', hint: 'Jus' },
+                    { word: 'CAKE', visual: '🎂', hint: 'Kue' }
+                ],
+                memory: [
+                    { word: 'Milk 🥛', id: 1 }, { word: 'Milk 🥛', id: 1 },
+                    { word: 'Pizza 🍕', id: 2 }, { word: 'Pizza 🍕', id: 2 },
+                    { word: 'Apple 🍎', id: 3 }, { word: 'Apple 🍎', id: 3 },
+                    { word: 'Water 💧', id: 4 }, { word: 'Water 💧', id: 4 }
+                ]
+            },
+            grammar: {
+                title: 'Fun Grammar',
+                quiz: [
+                    { visual: '🍎', question: 'It is ... apple.', answer: 'an', options: ['a', 'an', 'are', 'is'] },
+                    { visual: '🐶', question: 'It ... a cute dog.', answer: 'is', options: ['am', 'is', 'are', 'an'] },
+                    { visual: '👧👦', question: 'They ... happy students.', answer: 'are', options: ['am', 'is', 'are', 'a'] },
+                    { visual: '🏃', question: 'He is ... right now.', answer: 'running', options: ['run', 'running', 'sleep', 'swimming'] },
+                    { visual: '⚽', question: 'I ... a football player.', answer: 'am', options: ['am', 'is', 'are', 'an'] }
+                ],
+                memory: [
+                    { word: 'I am 🙋‍♂️', id: 1 }, { word: 'I am 🙋‍♂️', id: 1 },
+                    { word: 'He is 👦', id: 2 }, { word: 'He is 👦', id: 2 },
+                    { word: 'They are 👥', id: 3 }, { word: 'They are 👥', id: 3 },
+                    { word: 'An Apple 🍎', id: 4 }, { word: 'An Apple 🍎', id: 4 }
+                ]
+            }
+        };
+
+        const BADGES_LIST = [
+            { id: 'safari_explorer', name: 'Safari Explorer 🧭', desc: 'Selesaikan 1 game apa saja!', icon: '🧭' },
+            { id: 'spelling_wizard', name: 'Spelling Wizard 🔤', desc: 'Selesaikan mode Eja Kata!', icon: '🔤' },
+            { id: 'memory_genius', name: 'Memory Genius 🃏', desc: 'Selesaikan mode Memori!', icon: '🃏' },
+            { id: 'grammar_champ', name: 'Grammar Champion ⚡', desc: 'Selesaikan Quiz Grammar!', icon: '⚡' },
+            { id: 'star_collector', name: 'Star Collector ⭐', desc: 'Kumpulkan total 15 Bintang!', icon: '🌟' }
+        ];
+
+        /* -------------------------------------------------------------------------- */
+        /* 3. APP STATE MANAGEMENT                                                    */
+        /* -------------------------------------------------------------------------- */
+        let state = {
+            category: null,
+            mode: null,
+            currentIndex: 0,
+            score: 0,
+            totalStars: parseInt(localStorage.getItem('safari_stars') || '0'),
+            unlockedBadges: JSON.parse(localStorage.getItem('safari_badges') || '[]'),
+            spellingTargetWord: '',
+            spellingUserTiles: [],
+            spellingScrambledPool: [],
+            memoryFlippedCards: [],
+            memoryMatchedCount: 0
+        };
+
+        // DOM Elements
+        const screenHome = document.getElementById('screenHome');
+        const screenGameplay = document.getElementById('screenGameplay');
+        const screenResult = document.getElementById('screenResult');
+
+        // Init App UI
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStarsDisplay();
+            document.getElementById('navHomeBtn').onclick = exitToHome;
+        });
+
+        function updateStarsDisplay() {
+            document.getElementById('statStars').innerText = state.totalStars;
+            localStorage.setItem('safari_stars', state.totalStars.toString());
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 4. GAME ENGINE CONTROLLER                                                  */
+        /* -------------------------------------------------------------------------- */
+        function startGameMode(categoryKey, modeKey) {
+            getAudioContext();
+            playSfx('pop');
+
+            state.category = categoryKey;
+            state.mode = modeKey;
+            state.currentIndex = 0;
+            state.score = 0;
+
+            const categoryData = GAME_DATA[categoryKey];
+            document.getElementById('gameTitleBadge').innerText = categoryData.title;
+            document.getElementById('gameModeBadge').innerText = modeKey.toUpperCase();
+
+            // Toggle screens
+            screenHome.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenGameplay.classList.remove('hidden');
+
+            // Hide submodes
+            document.getElementById('modeQuiz').classList.add('hidden');
+            document.getElementById('modeSpelling').classList.add('hidden');
+            document.getElementById('modeMemory').classList.add('hidden');
+
+            if (modeKey === 'quiz') {
+                document.getElementById('modeQuiz').classList.remove('hidden');
+                renderQuizQuestion();
+            } else if (modeKey === 'spelling') {
+                document.getElementById('modeSpelling').classList.remove('hidden');
+                renderSpellingQuestion();
+            } else if (modeKey === 'memory') {
+                document.getElementById('modeMemory').classList.remove('hidden');
+                renderMemoryGame();
+            }
+        }
+
+        function exitToHome() {
+            playSfx('pop');
+            screenGameplay.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenHome.classList.remove('hidden');
+        }
+
+        function replayCurrentMode() {
+            startGameMode(state.category, state.mode);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 5. MODE A: QUIZ QUEST                                                      */
+        /* -------------------------------------------------------------------------- */
+        function renderQuizQuestion() {
+            const questions = GAME_DATA[state.category].quiz;
+            const q = questions[state.currentIndex];
+
+            document.getElementById('currentQuestionNum').innerText = state.currentIndex + 1;
+            document.getElementById('totalQuestionsNum').innerText = questions.length;
+
+            document.getElementById('quizVisualEmoji').innerText = q.visual;
+            document.getElementById('quizQuestionText').innerText = q.question;
+
+            // Speaker TTS
+            document.getElementById('quizSpeakerBtn').onclick = () => playEnglishTTS(q.question + ". " + q.answer);
+            playEnglishTTS(q.question);
+
+            const optionsGrid = document.getElementById('quizOptionsGrid');
+            optionsGrid.innerHTML = '';
+
+            const colors = [
+                'hover:border-emerald-400 border-slate-200',
+                'hover:border-sky-400 border-slate-200',
+                'hover:border-amber-400 border-slate-200',
+                'hover:border-rose-400 border-slate-200'
+            ];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `btn-press bg-slate-50 ${colors[idx % colors.length]} border-4 text-slate-800 font-display font-bold py-4 px-4 rounded-2xl shadow-3d-slate text-base md:text-xl transition flex items-center justify-between`;
+                btn.innerHTML = `
+                    <span>${opt}</span>
+                    <i class="fa-solid fa-volume-low text-slate-400 text-sm hover:text-emerald-600" onclick="event.stopPropagation(); playEnglishTTS('${opt}')"></i>
+                `;
+                btn.onclick = () => handleQuizOptionSelect(opt, q.answer, btn);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleQuizOptionSelect(selected, correct, element) {
+            const isCorrect = selected === correct;
+            const allBtns = document.getElementById('quizOptionsGrid').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                element.className = "btn-press bg-emerald-500 text-white border-4 border-emerald-600 font-display font-bold py-4 px-4 rounded-2xl shadow-3d-green text-base md:text-xl flex items-center justify-between";
+                playSfx('correct');
+                showToast(true, 'Awesome! Jawaban Benar! 🎉');
+                state.score += 20;
+            } else {
+                element.className = "btn-press bg-rose-500 text-white border-4 border-rose-600 font-display font-bold py-4 px-4 rounded-2xl shadow-3d-red text-base md:text-xl flex items-center justify-between";
+                playSfx('wrong');
+                showToast(false, `Oops! Jawaban tepat: ${correct}`);
+            }
+
+            setTimeout(() => {
+                state.currentIndex++;
+                const questions = GAME_DATA[state.category].quiz;
+                if (state.currentIndex < questions.length) {
+                    renderQuizQuestion();
+                } else {
+                    finishGameModule();
+                }
+            }, 1400);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 6. MODE B: SPELLING MASTER                                                 */
+        /* -------------------------------------------------------------------------- */
+        function renderSpellingQuestion() {
+            const list = GAME_DATA[state.category].spelling;
+            const item = list[state.currentIndex];
+
+            document.getElementById('currentQuestionNum').innerText = state.currentIndex + 1;
+            document.getElementById('totalQuestionsNum').innerText = list.length;
+
+            document.getElementById('spellingVisualEmoji').innerText = item.visual;
+            document.getElementById('spellingIndoHint').innerText = item.hint;
+
+            state.spellingTargetWord = item.word;
+            state.spellingUserTiles = [];
+
+            // Speaker TTS
+            document.getElementById('spellingSpeakerBtn').onclick = () => playEnglishTTS(item.word);
+            playEnglishTTS(item.word);
+
+            // Generate Scrambled Pool
+            let pool = item.word.split('');
+            const extras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            pool.push(extras[Math.floor(Math.random() * extras.length)]); // 1 distractor letter
+            pool.sort(() => Math.random() - 0.5);
+
+            state.spellingScrambledPool = pool.map((char, id) => ({ id, char, used: false }));
+
+            renderSpellingBoard();
+        }
+
+        function renderSpellingBoard() {
+            const targetWord = state.spellingTargetWord;
+            const targetContainer = document.getElementById('spellingTargetSlots');
+            const sourceContainer = document.getElementById('spellingSourceTiles');
+
+            targetContainer.innerHTML = '';
+            sourceContainer.innerHTML = '';
+
+            // Slots
+            for (let i = 0; i < targetWord.length; i++) {
+                const filledChar = state.spellingUserTiles[i];
+                const slot = document.createElement('div');
+                slot.className = `w-11 h-13 md:w-13 md:h-14 border-4 rounded-2xl flex items-center justify-center font-display font-bold text-2xl shadow-sm ${
+                    filledChar ? 'bg-teal-500 text-white border-teal-600 shadow-3d-green' : 'bg-slate-100 border-dashed border-slate-300 text-slate-400'
+                }`;
+                slot.innerText = filledChar || '_';
+                
+                if (filledChar) {
+                    slot.onclick = () => popSpellingLetter(i);
+                }
+                targetContainer.appendChild(slot);
+            }
+
+            // Scrambled Source Tiles
+            state.spellingScrambledPool.forEach(tile => {
+                if (!tile.used) {
+                    const btn = document.createElement('button');
+                    btn.className = "btn-press w-11 h-13 md:w-13 md:h-14 bg-amber-400 hover:bg-amber-500 text-amber-950 border-2 border-amber-600 font-display font-bold text-2xl rounded-2xl shadow-3d-yellow";
+                    btn.innerText = tile.char;
+                    btn.onclick = () => pushSpellingLetter(tile);
+                    sourceContainer.appendChild(btn);
+                }
+            });
+
+            if (state.spellingUserTiles.length === targetWord.length) {
+                checkSpellingSolution();
+            }
+        }
+
+        function pushSpellingLetter(tileObj) {
+            playSfx('pop');
+            tileObj.used = true;
+            state.spellingUserTiles.push(tileObj.char);
+            renderSpellingBoard();
+        }
+
+        function popSpellingLetter(index) {
+            playSfx('pop');
+            const removedChar = state.spellingUserTiles.splice(index, 1)[0];
+            const match = state.spellingScrambledPool.find(t => t.char === removedChar && t.used);
+            if (match) match.used = false;
+            renderSpellingBoard();
+        }
+
+        function resetSpellingCurrentWord() {
+            playSfx('pop');
+            state.spellingScrambledPool.forEach(t => t.used = false);
+            state.spellingUserTiles = [];
+            renderSpellingBoard();
+        }
+
+        function checkSpellingSolution() {
+            const userString = state.spellingUserTiles.join('');
+            const targetString = state.spellingTargetWord;
+
+            if (userString === targetString) {
+                playSfx('correct');
+                showToast(true, `Hebat! Correct Spelling: "${targetString}"! 🎉`);
+                state.score += 20;
+
+                setTimeout(() => {
+                    state.currentIndex++;
+                    const list = GAME_DATA[state.category].spelling;
+                    if (state.currentIndex < list.length) {
+                        renderSpellingQuestion();
+                    } else {
+                        finishGameModule();
+                    }
+                }, 1200);
+            } else {
+                playSfx('wrong');
+                showToast(false, 'Ejaan belum pas, yuk coba susun lagi!');
+                setTimeout(() => {
+                    resetSpellingCurrentWord();
+                }, 1000);
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 7. MODE C: MEMORY MATCH                                                    */
+        /* -------------------------------------------------------------------------- */
+        function renderMemoryGame() {
+            const deck = GAME_DATA[state.category].memory;
+            const shuffledDeck = [...deck].sort(() => Math.random() - 0.5);
+
+            document.getElementById('currentQuestionNum').innerText = 1;
+            document.getElementById('totalQuestionsNum').innerText = 1;
+
+            state.memoryFlippedCards = [];
+            state.memoryMatchedCount = 0;
+
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            shuffledDeck.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "perspective-1000 h-24 sm:h-28 cursor-pointer";
+                card.innerHTML = `
+                    <div class="card-inner preserve-3d relative w-full h-full border-4 border-cyan-400 rounded-2xl shadow-3d-blue bg-cyan-100 flex items-center justify-center text-center p-2 font-display font-bold">
+                        <div class="card-front absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center text-white text-3xl backface-hidden">
+                            ❓
+                        </div>
+                        <div class="card-back absolute inset-0 bg-white rounded-xl flex items-center justify-center text-slate-800 text-sm md:text-base font-bold backface-hidden rotate-y-180 p-2 border-2 border-cyan-300">
+                            ${item.word}
+                        </div>
+                    </div>
+                `;
+
+                card.onclick = () => flipMemoryCard(card, item, shuffledDeck.length);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipMemoryCard(cardElement, itemObj, totalCards) {
+            const inner = cardElement.querySelector('.card-inner');
+
+            if (inner.classList.contains('rotate-y-180') || state.memoryFlippedCards.length >= 2) {
+                return;
+            }
+
+            playSfx('pop');
+            inner.classList.add('rotate-y-180');
+            playEnglishTTS(itemObj.word);
+
+            state.memoryFlippedCards.push({ cardElement, itemObj });
+
+            if (state.memoryFlippedCards.length === 2) {
+                const [c1, c2] = state.memoryFlippedCards;
+
+                if (c1.itemObj.id === c2.itemObj.id) {
+                    playSfx('correct');
+                    state.memoryMatchedCount += 2;
+                    state.memoryFlippedCards = [];
+                    state.score += 25;
+
+                    if (state.memoryMatchedCount === totalCards) {
+                        setTimeout(() => {
+                            finishGameModule();
+                        }, 1000);
+                    }
+                } else {
+                    playSfx('wrong');
+                    setTimeout(() => {
+                        c1.cardElement.querySelector('.card-inner').classList.remove('rotate-y-180');
+                        c2.cardElement.querySelector('.card-inner').classList.remove('rotate-y-180');
+                        state.memoryFlippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 8. GAMIFICATION, BADGES & CONFETTI                                         */
+        /* -------------------------------------------------------------------------- */
+        function finishGameModule() {
+            playSfx('win');
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            let starsEarned = 3;
+            if (state.score < 60) starsEarned = 1;
+            else if (state.score < 90) starsEarned = 2;
+
+            state.totalStars += starsEarned;
+            updateStarsDisplay();
+
+            // Stars Row UI
+            const starsRow = document.getElementById('resultStarsRow');
+            starsRow.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const span = document.createElement('span');
+                span.innerText = i < starsEarned ? '⭐' : '⚪';
+                starsRow.appendChild(span);
+            }
+
+            document.getElementById('finalScoreNumber').innerText = state.score;
+
+            checkAndGrantBadges();
+
+            screenGameplay.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+        }
+
+        function checkAndGrantBadges() {
+            const newBadgeCard = document.getElementById('newBadgeUnlockedCard');
+            newBadgeCard.classList.add('hidden');
+
+            let newlyUnlocked = null;
+
+            function grant(id) {
+                if (!state.unlockedBadges.includes(id)) {
+                    state.unlockedBadges.push(id);
+                    localStorage.setItem('safari_badges', JSON.stringify(state.unlockedBadges));
+                    newlyUnlocked = BADGES_LIST.find(b => b.id === id);
+                }
+            }
+
+            grant('safari_explorer');
+
+            if (state.mode === 'spelling') grant('spelling_wizard');
+            if (state.mode === 'memory') grant('memory_genius');
+            if (state.category === 'grammar') grant('grammar_champ');
+            if (state.totalStars >= 15) grant('star_collector');
+
+            if (newlyUnlocked) {
+                document.getElementById('newBadgeIcon').innerText = newlyUnlocked.icon;
+                document.getElementById('newBadgeName').innerText = newlyUnlocked.name;
+                newBadgeCard.classList.remove('hidden');
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 9. BADGES MODAL CONTROLLER                                                 */
+        /* -------------------------------------------------------------------------- */
+        document.getElementById('openBadgesBtn').onclick = openBadgesModal;
+
+        function openBadgesModal() {
+            playSfx('pop');
+            const container = document.getElementById('badgesListGrid');
+            container.innerHTML = '';
+
+            BADGES_LIST.forEach(b => {
+                const isUnlocked = state.unlockedBadges.includes(b.id);
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-2xl border-2 flex items-center gap-3 ${
+                    isUnlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-100 border-slate-200 opacity-60'
+                }`;
+                item.innerHTML = `
+                    <div class="text-3xl">${b.icon}</div>
+                    <div>
+                        <h4 class="font-display font-bold text-xs ${isUnlocked ? 'text-amber-900' : 'text-slate-500'}">${b.name}</h4>
+                        <p class="text-[10px] text-slate-500">${b.desc}</p>
+                        <span class="text-[9px] font-bold uppercase ${isUnlocked ? 'text-emerald-600' : 'text-slate-400'}">
+                            ${isUnlocked ? '✓ Terbuka' : '🔒 Terkunci'}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('badgesModal').classList.remove('hidden');
+        }
+
+        function closeBadgesModal() {
+            playSfx('pop');
+            document.getElementById('badgesModal').classList.add('hidden');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 10. TOAST NOTIFIER                                                         */
+        /* -------------------------------------------------------------------------- */
+        function showToast(isSuccess, message) {
+            const toast = document.getElementById('feedbackToast');
+            const card = document.getElementById('feedbackToastCard');
+            const icon = document.getElementById('feedbackToastIcon');
+            const msg = document.getElementById('feedbackToastMessage');
+
+            msg.innerText = message;
+
+            if (isSuccess) {
+                card.className = "bg-emerald-500 text-white px-6 py-3 rounded-full font-display font-bold shadow-2xl border-2 border-white flex items-center gap-3 text-sm md:text-base";
+                icon.innerText = "✅";
+            } else {
+                card.className = "bg-rose-500 text-white px-6 py-3 rounded-full font-display font-bold shadow-2xl border-2 border-white flex items-center gap-3 text-sm md:text-base";
+                icon.innerText = "❌";
+            }
+
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
